@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustafa.artbookhilttesting.model.ArtModel
+import com.mustafa.artbookhilttesting.repository.IRoomRepository
 import com.mustafa.artbookhilttesting.repository.RoomRepository
 import com.mustafa.artbookhilttesting.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,7 @@ import javax.inject.Inject
 class ArtDetailViewModel
 @Inject
 constructor(
-private val roomRepository: RoomRepository
+private val roomRepository: IRoomRepository
 ):ViewModel()
 {
 
@@ -34,7 +35,7 @@ private val roomRepository: RoomRepository
 
 
     fun setSelectedImage(url:String){
-        selectedImage.postValue(url)
+        selectedImage.value = url
     }
 
     fun insertArt(artModel: ArtModel){

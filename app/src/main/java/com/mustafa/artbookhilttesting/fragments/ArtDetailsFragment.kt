@@ -9,9 +9,12 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.RequestManager
+import com.mustafa.artbookhilttesting.R
 import com.mustafa.artbookhilttesting.databinding.FragmentArtDetailsBinding
+import com.mustafa.artbookhilttesting.listener.IUrlImage
 import com.mustafa.artbookhilttesting.util.Resource
 import com.mustafa.artbookhilttesting.viewmodel.ArtDetailViewModel
 import com.mustafa.artbookhilttesting.viewmodel.ImageApiViewModel
@@ -27,8 +30,8 @@ class ArtDetailsFragment
     : Fragment() {
     private lateinit var binding: FragmentArtDetailsBinding
 
-     private val viewmodell:ArtDetailViewModel by viewModels<ArtDetailViewModel>()
-    private val imageViewModel:ImageApiViewModel by viewModels<ImageApiViewModel>()
+      lateinit var viewmodell:ArtDetailViewModel
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,11 +45,16 @@ class ArtDetailsFragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewmodell = ViewModelProvider(requireActivity()).get(ArtDetailViewModel::class.java)
+      /*  val urlImage =  findNavController().currentBackStackEntry?.savedStateHandle?.get<String>("url").toString()
+        viewmodell.setSelectedImage(url = urlImage)
+*/
 
         binding.addImage.setOnClickListener {
             val action = ArtDetailsFragmentDirections.actionArtDetailsFragmentToImageApiFragment()
             findNavController().navigate(action)
         }
+
         subscribeToObservers()
         // Geri basıldığında ne yapılacak işlemi burada yapabiliriz
         val callBack = object:OnBackPressedCallback(true){
@@ -67,12 +75,14 @@ class ArtDetailsFragment
 
     private fun subscribeToObservers(){
 
-        viewmodell.selectedImageLive.observe(viewLifecycleOwner, Observer { url->
-            Toast.makeText(requireContext(), url?:"Boşşşşş", Toast.LENGTH_SHORT).show()
-            glide.load(url).into(binding.addImage)
+        viewmodell.selectedImageLive.observe(viewLifecycleOwner, Observer {
+
+              it?.let { url->
+                  glide.load(url).into(binding.addImage)
+              }
 
         })
-            viewmodell.insertMessage.observe(viewLifecycleOwner, Observer {
+        viewmodell.insertMessage.observe(viewLifecycleOwner, Observer {
                it?.let {
                    when(it){
                        is Resource.Success ->{

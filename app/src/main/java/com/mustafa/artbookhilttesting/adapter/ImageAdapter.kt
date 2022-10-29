@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.mustafa.artbookhilttesting.databinding.ImageRowBinding
+import com.mustafa.artbookhilttesting.listener.IUrlImage
 import com.mustafa.artbookhilttesting.model.Hits
 import javax.inject.Inject
 
@@ -20,9 +21,8 @@ constructor(
   private val glide:RequestManager
 ) : RecyclerView.Adapter<ImageAdapter.ImageViewHolder>() {
 
-    private var  onItemClickListener:((String) -> Unit)? = null
 
-
+    private var selectedUrlImage:IUrlImage? = null
 
     val diffUtil = object :DiffUtil.ItemCallback<Hits>(){
         override fun areItemsTheSame(oldItem: Hits, newItem: Hits): Boolean {
@@ -43,10 +43,9 @@ constructor(
         return ImageViewHolder(binding = binding)
     }
 
-    fun setOnItemClickk(listener:(String)->Unit){
-        onItemClickListener = listener
+    fun setOnSelectedUrlImage(urlImage:IUrlImage){
+        selectedUrlImage = urlImage
     }
-
 
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
@@ -54,8 +53,8 @@ constructor(
         holder.itemView.apply {
             glide.load(url).into(holder.binding.image)
             setOnClickListener {
-                onItemClickListener?.let {
-                    it(url)
+                selectedUrlImage?.let {
+                    it.selectedUrlImage(url = url)
                 }
             }
         }

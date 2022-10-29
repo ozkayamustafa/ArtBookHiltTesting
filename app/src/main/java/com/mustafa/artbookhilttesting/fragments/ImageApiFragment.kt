@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.mustafa.artbookhilttesting.R
 import com.mustafa.artbookhilttesting.adapter.ImageAdapter
 import com.mustafa.artbookhilttesting.databinding.FragmentImageApiBinding
+import com.mustafa.artbookhilttesting.listener.IUrlImage
 import com.mustafa.artbookhilttesting.viewmodel.ArtDetailViewModel
 import com.mustafa.artbookhilttesting.viewmodel.ImageApiViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,24 +30,27 @@ class ImageApiFragment
 @Inject
 constructor(
        private val imageAdapter: ImageAdapter
-    ): Fragment(){
+    ): Fragment(),IUrlImage{
 
     private lateinit var binding: FragmentImageApiBinding
+     private lateinit var viewModel: ImageApiViewModel
+    private lateinit var artDetailViewModel:ArtDetailViewModel
 
-    private val viewmodel by viewModels<ImageApiViewModel>()
-    private  val artDetailViewModel by viewModels<ArtDetailViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
+
+        imageAdapter.setOnSelectedUrlImage(this)
         binding = FragmentImageApiBinding.inflate(inflater,container,false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        viewModel = ViewModelProvider(requireActivity()).get(ImageApiViewModel::class.java)
+        artDetailViewModel = ViewModelProvider(requireActivity()).get(ArtDetailViewModel::class.java)
         subscribeToObservers()
 
         var job:Job?=null
@@ -56,7 +60,7 @@ constructor(
                 delay(1000)
                 it?.let {
                     if (it.toString().isNotEmpty()){
-                        viewmodel.getImageData(it.toString())
+                        viewModel.getImageData(it.toString())
                     }
                 }
             }
@@ -66,23 +70,25 @@ constructor(
         binding.imageRecyclerView.layoutManager = GridLayoutManager(requireContext(),3)
 
 
-       imageAdapter.setOnItemClickk{
+       /* imageAdapter.setOnItemClickk{
+           //artDetailViewModel.setSelectedImage(it)
+            findNavController().previousBackStackEntry?.savedStateHandle?.set("url",it)
             findNavController().popBackStack()
-            Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
-            artDetailViewModel.setSelectedImage(url = it)
-        }
+
+        }*/
+
 
 
     }
 
     private fun subscribeToObservers(){
-        viewmodel.imageLiveList.observe(viewLifecycleOwner, Observer {
+        viewModel.imageLiveList.observe(viewLifecycleOwner, Observer {
             it?.let {imageModel ->
                 imageAdapter.imageList = imageModel.hits
             }
         })
 
-        viewmodel.isLoading.observe(viewLifecycleOwner, Observer {
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
             if (it == true){
                 binding.progress.visibility = View.VISIBLE
             }
@@ -91,9 +97,13 @@ constructor(
             }
         })
 
+
     }
 
-
+    override fun selectedUrlImage(url: String) {
+         artDetailViewModel.setSelectedImage(url)
+        findNavController().popBackStack()
+    }
 
 
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mustafa.artbookhilttesting.model.ImageModel
+import com.mustafa.artbookhilttesting.repository.IRepositoryImage
 import com.mustafa.artbookhilttesting.repository.ImageRepository
 import com.mustafa.artbookhilttesting.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +16,7 @@ import javax.inject.Inject
 class ImageApiViewModel
 @Inject
 constructor(
-    private val imageRepository: ImageRepository
+    private val imageRepository: IRepositoryImage
 ):ViewModel()
 {
 
